@@ -12,8 +12,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// var server = "mongodb+srv://mindfitadmin:-v.shd^i;p@mainmindfit.p5mvj.mongodb.net/test"
-var server = "mongodb://127.0.0.1:15000"
+var server = "mongodb+srv://admin:NetZero1234@cluster0.vxsss.mongodb.net/admin"
+
+// var server = "mongodb://127.0.0.1:15000"
 
 func UpdateArchive(ctx context.Context, db_mongo_u string, collec_u string, input1 bson.M, input2 bson.M) string {
 
