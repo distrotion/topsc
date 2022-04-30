@@ -3,11 +3,9 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 	"encoding/hex"
 	_ "encoding/json"
 	"fmt"
-	"io"
 	"strconv"
 	"time"
 	"topsc/mongo/maindbv2"
@@ -45,75 +43,26 @@ type ReturnGetRank struct {
 var (
 	dbmain     = `TOPSCORE`
 	Collection = `MAIN`
-	key        = "ffb264d250fe591f3ea32170b82ed7daa0950c8fb4e274cb6b8ad6cf5c2af307"
+	key        = "Netzer0GameNAnCrytioNlonG32chadu"
+	iv         = "sibhokchatousina"
 )
 
-func encrypt(stringToEncrypt string, keyString string) (encryptedString string) {
-
-	//Since the key is in string, we need to convert decode it to bytes
-	key, _ := hex.DecodeString(keyString)
-	plaintext := []byte(stringToEncrypt)
-
-	//Create a new Cipher Block from the key
-	block, err := aes.NewCipher(key)
+func Ase256Decode(cipherText string, encKey string, iv string) (decryptedString string) {
+	bKey := []byte(encKey)
+	bIV := []byte(iv)
+	cipherTextDecoded, err := hex.DecodeString(cipherText)
 	if err != nil {
-		panic(err.Error())
-	}
-
-	//Create a new GCM - https://en.wikipedia.org/wiki/Galois/Counter_Mode
-	//https://golang.org/pkg/crypto/cipher/#NewGCM
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	//Create a nonce. Nonce should be from GCM
-	nonce := make([]byte, aesGCM.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		panic(err.Error())
-	}
-
-	//Encrypt the data using aesGCM.Seal
-	//Since we don't want to save the nonce somewhere else in this case, we add it as a prefix to the encrypted data. The first nonce argument in Seal is the prefix.
-	ciphertext := aesGCM.Seal(nonce, nonce, plaintext, nil)
-	return fmt.Sprintf("%x", ciphertext)
-}
-
-func decrypt(encryptedString string, keyString string) (decryptedString string) {
-
-	key, er1 := hex.DecodeString(keyString)
-	if er1 != nil {
 		return `err`
 	}
-	enc, er2 := hex.DecodeString(encryptedString)
-	if er2 != nil {
+
+	block, err := aes.NewCipher(bKey)
+	if err != nil {
 		return `err`
 	}
-	//Create a new Cipher Block from the key
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		panic(err.Error())
-	}
 
-	//Create a new GCM
-	aesGCM, err := cipher.NewGCM(block)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	//Get the nonce size
-	nonceSize := aesGCM.NonceSize()
-
-	//Extract the nonce from the encrypted data
-	nonce, ciphertext := enc[:nonceSize], enc[nonceSize:]
-
-	//Decrypt the data
-	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return fmt.Sprintf("%s", plaintext)
+	mode := cipher.NewCBCDecrypter(block, bIV)
+	mode.CryptBlocks([]byte(cipherTextDecoded), []byte(cipherTextDecoded))
+	return string(cipherTextDecoded)
 }
 
 func main() {
@@ -166,16 +115,16 @@ func main() {
 		var output string
 		output = ""
 
-		AddressDecryptAES := decrypt(input.Address, key)
-		if AddressDecryptAES == `err` {
-			output = `Decrypt err`
-			c.JSON(200, output)
-		}
-		ScoreDecryptAES := decrypt(input.Score, key)
-		if ScoreDecryptAES == `err` {
-			output = `Decrypt err`
-			c.JSON(200, output)
-		}
+		AddressDecryptAES := Ase256Decode(input.Address, key, iv) //decrypt(input.Address, key)
+		// if AddressDecryptAES == `err` {
+		// 	output = `Decrypt err`
+		// 	c.JSON(200, output)
+		// }
+		ScoreDecryptAES := Ase256Decode(input.Score, key, iv) //decrypt(input.Score, key)
+		// if ScoreDecryptAES == `err` {
+		// 	output = `Decrypt err`
+		// 	c.JSON(200, output)
+		// }
 
 		fmt.Println(ScoreDecryptAES)
 
