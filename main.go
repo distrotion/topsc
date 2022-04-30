@@ -3,9 +3,10 @@ package main
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/hex"
+	"encoding/base64"
 	_ "encoding/json"
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 	"topsc/mongo/maindbv2"
@@ -47,22 +48,31 @@ var (
 	iv         = "sibhokchatousina"
 )
 
-func Ase256Decode(cipherText string, encKey string, iv string) (decryptedString string) {
-	bKey := []byte(encKey)
-	bIV := []byte(iv)
-	cipherTextDecoded, err := hex.DecodeString(cipherText)
+func Decryp(Key string, iv string, data string) string {
+
+	ciphertext, err := base64.StdEncoding.DecodeString(data)
 	if err != nil {
-		return `err`
+		panic(err)
 	}
 
-	block, err := aes.NewCipher(bKey)
+	block, err := aes.NewCipher([]byte(Key))
 	if err != nil {
-		return `err`
+		panic(err)
 	}
 
-	mode := cipher.NewCBCDecrypter(block, bIV)
-	mode.CryptBlocks([]byte(cipherTextDecoded), []byte(cipherTextDecoded))
-	return string(cipherTextDecoded)
+	if len(ciphertext)%aes.BlockSize != 0 {
+		panic("ciphertext is not a multiple of the block size")
+	}
+
+	mode := cipher.NewCBCDecrypter(block, []byte(iv))
+	mode.CryptBlocks(ciphertext, ciphertext)
+
+	return stripRegex(string(ciphertext))
+}
+
+func stripRegex(in string) string {
+	reg, _ := regexp.Compile("[^a-zA-Z0-9 ]+")
+	return reg.ReplaceAllString(in, "")
 }
 
 func main() {
@@ -115,22 +125,21 @@ func main() {
 		var output string
 		output = ""
 
-		AddressDecryptAES := Ase256Decode(input.Address, key, iv) //decrypt(input.Address, key)
-		// if AddressDecryptAES == `err` {
-		// 	output = `Decrypt err`
-		// 	c.JSON(200, output)
-		// }
-		ScoreDecryptAES := Ase256Decode(input.Score, key, iv) //decrypt(input.Score, key)
-		// if ScoreDecryptAES == `err` {
-		// 	output = `Decrypt err`
-		// 	c.JSON(200, output)
-		// }
+		AddressDecryptAES := Decryp(key, iv, input.Address) //decrypt(input.Address, key)
+		if AddressDecryptAES == `err` {
+			output = `Decrypt err`
+			c.JSON(200, output)
+		}
 
-		fmt.Println(ScoreDecryptAES)
+		ScoreDecryptAES := Decryp(key, iv, input.Score) //decrypt(input.Score, key)
+		if ScoreDecryptAES == `err` {
+			output = `Decrypt err`
+			c.JSON(200, output)
+		}
 
 		DBfindADD := maindbv2.Finddb(c, dbmain, Collection, bson.M{"address": AddressDecryptAES}, "_id", 1, 0, 0)
 
-		// fmt.Println(len(DBfindADD))
+		fmt.Println(len(DBfindADD))
 		if len(DBfindADD) > 0 {
 
 			// fmt.Println(reflect.TypeOf(DBfindADD[0][`address`]))
@@ -147,7 +156,7 @@ func main() {
 				CURsc = 0
 			}
 
-			fmt.Println(CURsc)
+			// fmt.Println(CURsc)
 
 			if NEWsc > CURsc {
 
