@@ -79,11 +79,13 @@ func main() {
 	r := gin.Default()
 	// r := gin.New()
 
+	// r.Use(cors.Default())
+
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "POST"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
 			return origin == "https://github.com"
