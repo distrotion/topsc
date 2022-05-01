@@ -39,6 +39,7 @@ type ReturnGetRank struct {
 	Address string `json:"address"`
 	Score   string `json:"score"`
 	Egg     string `json:"egg"`
+	Rank    int    `json:"rank"`
 }
 
 var (
@@ -214,7 +215,7 @@ func main() {
 
 		//=========================================
 		dbtest := maindbv2.Finddb(c, dbmain, Collection, bson.M{}, "score", -1, 100, 0)
-		fmt.Println(dbtest)
+		// fmt.Println(dbtest)
 		//=========================================
 
 		c.JSON(200, dbtest)
@@ -225,11 +226,27 @@ func main() {
 		c.BindJSON(&input)
 
 		//=========================================
-		dbtest := maindbv2.Finddb(c, dbmain, Collection, bson.M{"address": input.Address}, "score", -1, 100, 0)
-		fmt.Println(dbtest)
+		dbtest := maindbv2.Finddb(c, dbmain, Collection, bson.M{}, "score", -1, 0, 0)
+		fmt.Println(input.Address)
 		//=========================================
 
-		c.JSON(200, dbtest)
+		rank := 0
+		fmt.Println(rank)
+		output := ReturnGetRank{}
+
+		for i := 0; i < len(dbtest); i++ {
+
+			if input.Address == dbtest[i][`address`] {
+				rank = i + 1
+				output.Address = fmt.Sprintf("%v", dbtest[i][`address`])
+				output.Egg = fmt.Sprintf("%v", dbtest[i][`egg`])
+				output.Score = fmt.Sprintf("%f", dbtest[0][`score`])
+				output.Rank = rank
+
+			}
+		}
+
+		c.JSON(200, output)
 	})
 
 	r.Run(":9105")
