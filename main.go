@@ -96,7 +96,7 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 
-		c.JSON(200, "topsc V0-00")
+		c.JSON(200, "topsc V0-11")
 	})
 
 	// r.POST("/test", func(c *gin.Context) {
