@@ -240,7 +240,7 @@ func main() {
 				rank = i + 1
 				output.Address = fmt.Sprintf("%v", dbtest[i][`address`])
 				output.Egg = fmt.Sprintf("%v", dbtest[i][`egg`])
-				output.Score = fmt.Sprintf("%f", dbtest[0][`score`])
+				output.Score = fmt.Sprintf("%f", dbtest[i][`score`])
 				output.Rank = rank
 
 			}
