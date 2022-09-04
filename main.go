@@ -7,6 +7,7 @@ import (
 	_ "encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
 	"time"
 	"topsc/mongo/maindbv2"
 
@@ -116,97 +117,97 @@ func main() {
 	// 	c.JSON(200, dbtest)
 	// })
 
-	// r.POST("/AddScore-api", func(c *gin.Context) {
-	// 	var input AddScore
-	// 	c.BindJSON(&input)
-	// 	// c.ShouldBind(&input)
-	// 	// fmt.Println(input.Address)
-	// 	// fmt.Println(input.Score)
-	// 	// fmt.Println(input.Egg)
-	// 	//================================================================
-	// 	var output string
-	// 	output = ""
+	r.POST("/AddScore-api", func(c *gin.Context) {
+		var input AddScore
+		c.BindJSON(&input)
+		// c.ShouldBind(&input)
+		// fmt.Println(input.Address)
+		// fmt.Println(input.Score)
+		// fmt.Println(input.Egg)
+		//================================================================
+		var output string
+		output = ""
 
-	// 	AddressDecryptAES := Decryp(key, iv, input.Address) //decrypt(input.Address, key)
-	// 	if AddressDecryptAES == `err` {
-	// 		output = `Decrypt err`
-	// 		c.JSON(200, output)
-	// 	}
+		AddressDecryptAES := Decryp(key, iv, input.Address) //decrypt(input.Address, key)
+		if AddressDecryptAES == `err` {
+			output = `Decrypt err`
+			c.JSON(200, output)
+		}
 
-	// 	ScoreDecryptAES := Decryp(key, iv, input.Score) //decrypt(input.Score, key)
-	// 	if ScoreDecryptAES == `err` {
-	// 		output = `Decrypt err`
-	// 		c.JSON(200, output)
-	// 	}
+		ScoreDecryptAES := Decryp(key, iv, input.Score) //decrypt(input.Score, key)
+		if ScoreDecryptAES == `err` {
+			output = `Decrypt err`
+			c.JSON(200, output)
+		}
 
-	// 	DBfindADD := maindbv2.Finddb(c, dbmain, Collection, bson.M{"address": AddressDecryptAES}, "_id", 1, 0, 0)
+		DBfindADD := maindbv2.Finddb(c, dbmain, Collection, bson.M{"address": AddressDecryptAES}, "_id", 1, 0, 0)
 
-	// 	fmt.Println(len(DBfindADD))
-	// 	if len(DBfindADD) > 0 {
+		fmt.Println(len(DBfindADD))
+		if len(DBfindADD) > 0 {
 
-	// 		// fmt.Println(reflect.TypeOf(DBfindADD[0][`address`]))
+			// fmt.Println(reflect.TypeOf(DBfindADD[0][`address`]))
 
-	// 		NEWsc, err := strconv.ParseFloat(ScoreDecryptAES, 64)
-	// 		if err != nil {
-	// 			NEWsc = 0
-	// 		}
+			NEWsc, err := strconv.ParseFloat(ScoreDecryptAES, 64)
+			if err != nil {
+				NEWsc = 0
+			}
 
-	// 		CURscST := fmt.Sprintf("%f", DBfindADD[0][`score`])
+			CURscST := fmt.Sprintf("%f", DBfindADD[0][`score`])
 
-	// 		CURsc, err := strconv.ParseFloat(CURscST, 64)
-	// 		if err != nil {
-	// 			CURsc = 0
-	// 		}
+			CURsc, err := strconv.ParseFloat(CURscST, 64)
+			if err != nil {
+				CURsc = 0
+			}
 
-	// 		// fmt.Println(CURsc)
+			// fmt.Println(CURsc)
 
-	// 		if NEWsc > CURsc {
+			if NEWsc > CURsc {
 
-	// 			NEWscST := fmt.Sprintf("%f", NEWsc)
-	// 			sc, err := strconv.ParseFloat(NEWscST, 64)
-	// 			if err != nil {
-	// 				sc = 0
-	// 			}
+				NEWscST := fmt.Sprintf("%f", NEWsc)
+				sc, err := strconv.ParseFloat(NEWscST, 64)
+				if err != nil {
+					sc = 0
+				}
 
-	// 			updatesocre := bson.M{
-	// 				"score": sc,
-	// 			}
-	// 			// fmt.Println(DBfindADD[0][`address`])
-	// 			updatedatadb := maindbv2.UpdateArchive(c, dbmain, Collection, bson.M{"address": AddressDecryptAES}, updatesocre)
-	// 			if updatedatadb == `nok` {
-	// 				output = `database have some problem`
-	// 				c.JSON(200, output)
-	// 			} else {
-	// 				output = `new high`
-	// 			}
+				updatesocre := bson.M{
+					"score": sc,
+				}
+				// fmt.Println(DBfindADD[0][`address`])
+				updatedatadb := maindbv2.UpdateArchive(c, dbmain, Collection, bson.M{"address": AddressDecryptAES}, updatesocre)
+				if updatedatadb == `nok` {
+					output = `database have some problem`
+					c.JSON(200, output)
+				} else {
+					output = `new high`
+				}
 
-	// 		} else {
-	// 			output = `not new high`
-	// 		}
+			} else {
+				output = `not new high`
+			}
 
-	// 	} else {
-	// 		sc, err := strconv.ParseFloat(ScoreDecryptAES, 64)
-	// 		if err != nil {
-	// 			sc = 0
-	// 		}
+		} else {
+			sc, err := strconv.ParseFloat(ScoreDecryptAES, 64)
+			if err != nil {
+				sc = 0
+			}
 
-	// 		insertsocre := bson.M{
-	// 			"address": AddressDecryptAES,
-	// 			"score":   sc,
-	// 			"egg":     input.Egg,
-	// 		}
+			insertsocre := bson.M{
+				"address": AddressDecryptAES,
+				"score":   sc,
+				"egg":     input.Egg,
+			}
 
-	// 		DBinsertsocre := maindbv2.Insertdb(c, dbmain, Collection, insertsocre)
-	// 		if DBinsertsocre == `nok` {
-	// 			output = `database have some problem`
-	// 			c.JSON(200, output)
-	// 		} else {
-	// 			output = `new address`
-	// 		}
-	// 	}
+			DBinsertsocre := maindbv2.Insertdb(c, dbmain, Collection, insertsocre)
+			if DBinsertsocre == `nok` {
+				output = `database have some problem`
+				c.JSON(200, output)
+			} else {
+				output = `new address`
+			}
+		}
 
-	// 	c.JSON(200, output)
-	// })
+		c.JSON(200, output)
+	})
 
 	r.POST("/GetTop100-api", func(c *gin.Context) {
 		var input AddScore
