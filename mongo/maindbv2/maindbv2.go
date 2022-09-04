@@ -57,9 +57,11 @@ func UpdateArchive(ctx context.Context, db_mongo_u string, collec_u string, inpu
 	input2[`timestamp`] = time
 	res_u, insertErr := collection_u.UpdateOne(ctx, input1, bson.M{"$set": input2})
 	if insertErr != nil {
+		client_u.Disconnect(ctx)
 		return `nok`
 	}
 	fmt.Println(res_u)
+	client_u.Disconnect(ctx)
 	return `ok`
 }
 
@@ -84,9 +86,11 @@ func Insertdb(ctx context.Context, db_mongo_u string, collec_u string, input1 bs
 	input1[`timestamp`] = time
 	res_u, insertErr := collection_u.InsertOne(ctx, input1)
 	if insertErr != nil {
+		client_u.Disconnect(ctx)
 		return `nok`
 	}
 	fmt.Println(res_u)
+	client_u.Disconnect(ctx)
 	return `ok`
 }
 
@@ -114,12 +118,14 @@ func Finddb(ctx context.Context, db_mongo_u string, collec_u string, input1 bson
 	//cur, err := collection.Find(ctx, bson.D{{}}, opts)
 	if err != nil {
 		var msg2 []bson.M
+		client_u.Disconnect(ctx)
 		return msg2
 	}
 	var msg []bson.M
 	if err = cur.All(ctx, &msg); err != nil {
 		panic(err)
 	}
+	client_u.Disconnect(ctx)
 	return msg
 }
 
@@ -153,6 +159,7 @@ func UpdatePushArray(ctx context.Context, db_mongo_u string, collec_u string, in
 	} else {
 		res_ins, insertErr := collection_u.InsertOne(ctx, input1)
 		if insertErr != nil {
+			client_u.Disconnect(ctx)
 			return `nok`
 		}
 		fmt.Println(res_ins)
@@ -165,9 +172,11 @@ func UpdatePushArray(ctx context.Context, db_mongo_u string, collec_u string, in
 	fmt.Println(setdata)
 	res_u, insertErr := collection_u.UpdateOne(ctx, input1, bson.M{"$push": bson.M{setdata: input2}})
 	if insertErr != nil {
+		client_u.Disconnect(ctx)
 		return `nok`
 	}
 	fmt.Println(res_u)
+	client_u.Disconnect(ctx)
 	return `ok`
 }
 
@@ -213,9 +222,11 @@ func UpdatePushArraycus(ctx context.Context, db_mongo_u string, collec_u string,
 	// fmt.Println(setdata)
 	res_u, insertErr := collection_u.UpdateOne(ctx, input1, bson.M{"$push": bson.M{input3: input2}})
 	if insertErr != nil {
+		client_u.Disconnect(ctx)
 		return `nok`
 	}
 	fmt.Println(res_u)
+	client_u.Disconnect(ctx)
 	return `ok`
 }
 
@@ -246,12 +257,14 @@ func Findonly(ctx context.Context, db_mongo_u string, collec_u string, input1 bs
 	fmt.Println(cur)
 	if err != nil {
 		var msg2 []bson.M
+		client_u.Disconnect(ctx)
 		return msg2
 	}
 	var msg []bson.M
 	if err = cur.All(ctx, &msg); err != nil {
 		panic(err)
 	}
+	client_u.Disconnect(ctx)
 	return msg
 }
 
@@ -291,11 +304,13 @@ func Findmutikey(ctx context.Context, db_mongo_u string, collec_u string, input1
 	fmt.Println(cur)
 	if err != nil {
 		var msg2 []bson.M
+		client_u.Disconnect(ctx)
 		return msg2
 	}
 	var msg []bson.M
 	if err = cur.All(ctx, &msg); err != nil {
 		panic(err)
 	}
+	client_u.Disconnect(ctx)
 	return msg
 }
